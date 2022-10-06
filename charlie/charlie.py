@@ -2,6 +2,7 @@ import subprocess
 import sys
 import time
 import argparse
+import configparser
 
 from ppadb.client import Client as AdbClient
 from typing import AnyStr, List
@@ -23,7 +24,9 @@ path1 = 'F:/automatization/app3'
 
 # Connecting for a device
 
+
 logger = logging.getLogger('CharlieInstrument')
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format='[Charlie::%(levelname)-6s]  %(message)s')
 
 FRIDA_LOG_FILE = 'frida.log'
 
@@ -62,11 +65,13 @@ def log_instrumentation(message, data):
 
 
 class InstrumentEnv:
-    def __init__(self, apk: str):
+    def __init__(self, apk: str, hostname: str, port: str):
         self.client = None
         self.device = None
         self.apk = apk
         self.monkey_runner = None
+        self.hostname = hostname
+        self.port = port
         self.connect()
 
     def install_package(self):
@@ -93,11 +98,11 @@ class InstrumentEnv:
 
     def connect(self) -> None:
         # Default is "127.0.0.1" and 5037
-        self.client = AdbClient(host="127.0.0.1", port=5037)
-        logger.info(f'Connected to ADB Client {self.client}')
+        self.client = AdbClient(host=self.hostname, port=self.port)
+        logger.info(f'Connected to ADB Client {self.hostname}:{self.port}')
         devices = self.client.devices()
-        if len(self.devices) == 0:
-            logger.error("[connect] No devices found. Quiting.")
+        if len(devices) == 0:
+            logger.error("No devices found to connect. Quiting.")
             quit(9)
         self.device = devices[0]
         print(f'Connected to {self.device}')
@@ -145,18 +150,18 @@ class InstrumentEnv:
         self.clean()
 
 
-def read_files():
-    files = os.listdir(path)
-    return files
-
-
-def file_open():
-    header = ["packageName", "package", "header", "method", "url", "useragent"]
-    file = open('eval1.csv', 'a')
-    writer = csv.writer(file)
-
-    writer.writerow(header)
-    return file, writer
+# def read_files():
+#     files = os.listdir(path)
+#     return files
+#
+#
+# def file_open():
+#     header = ["packageName", "package", "header", "method", "url", "useragent"]
+#     file = open('eval1.csv', 'a')
+#     writer = csv.writer(file)
+#
+#     writer.writerow(header)
+#     return file, writer
 
 
 # device = None
@@ -165,15 +170,15 @@ def file_open():
 # package = None
 # f_package = None
 
-def analyze_apks(directory: str) -> None:
-    for apk in os.listdir(directory):
-        analyze_apk(apk)
-
-
-def analyze_apk(apk: str) -> None:
-    if apk.endswith(".apk"):
-        instrument = InstrumentEnv(apk)
-        instrument.run()
+# def analyze_apks(args) -> None:
+#     for apk in os.listdir(directory):
+#         analyze_apk(apk)
+#
+#
+# def analyze_apk(args) -> None:
+#     if apk.endswith(".apk"):
+#         instrument = InstrumentEnv(apk)
+#         instrument.run()
 
 
 def main() -> None:
@@ -182,18 +187,23 @@ def main() -> None:
     # uninstall_package(device)
     # apks = read_files()
     parser = argparse.ArgumentParser('charlie.py')
-    parser.add_argument('-d', dest='dir', type=str, help='analyze APKs in the directory')
-    parser.add_argument('-a', dest='apk', type=str, help='analyze apk')
+    parser.add_argument('-d', dest='dir', type=str, help='analyze all apk files in the directory')
+    parser.add_argument('-a', dest='apk_file', type=str, help='analyze apk')
+    parser.add_argument('-l', dest='adb_host', type=str, help='adb hostname (default=127.0.0.1)', default='127.0.0.1')
+    parser.add_argument('-p', dest='adb_port', type=str, help='adb port (default=5037)', default=5037)
     args = parser.parse_args()
 
-    if args.dir:
-        analyze_apks(directory=args.dir)
+    if args.dir is not None:
+        for apk_file in os.listdir(args.dir):
+            instrument = InstrumentEnv(apk=os.path.abspath(apk_file), hostname=args.adb_host, port=args.adb_port)
+            instrument.run()
         logger.info("Analysis completed")
-    elif args.apk:
-        analyze_apk(apk=args.apk)
+    elif args.apk_file:
+        instrument = InstrumentEnv(apk=os.path.abspath(args.apk_file), hostname=args.adb_host, port=args.adb_port)
+        instrument.run()
         logger.info("Analysis completed")
     else:
-        print("You must specify either directory or apk path")
+        print("You must specify either directory [-d] or apk [-a] path")
         parser.print_help(sys.stderr)
 
 
