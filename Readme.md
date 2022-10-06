@@ -28,15 +28,15 @@ You can find `charlie` in the `charlie` directory.
 ### Dependencies
 
 Charlie requires the following dependencies:
-- Python 3
-- [Frida](https://frida.re) Dynamic Instrumentation 
-- Python 3
-
-Additionally, you need to have the Android SDK and 
+- Python 3 with pip
+- [Frida](https://frida.re) Dynamic Instrumentation
+- Android SDK - You need to have the Android SDK and initialize the `ANDROID_SDK_ROOT` environment variable. Install it with [Android Studio](https://developer.android.com/studio) or install it from [command line tools](https://developer.android.com/studio/command-line).
 
 ### Instructions
 Charlie is a python script and can be run via `python3 charlie.py` within the `charlie` directory. 
 
+<b> Create emulator and connect </b>
+<b> Run Charlie </b>
 ### Developers
 
 Ignored for double blind submission
