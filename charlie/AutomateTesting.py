@@ -5,16 +5,19 @@ import re
 import os
 import csv
 import frida
-#Applications folder
+# Applications folder
 path = 'F:/automatization/app'
-#Tested Applications folder
-path1='F:/automatization/app3'
-#Path to monkeyrunner
-android_home=r'C:\Users\alime\AppData\Local\Android\Sdk\tools\bin\monkeyrunner.bat'
+# Tested Applications folder
+path1 = 'F:/automatization/app3'
+# Path to monkeyrunner
+android_home = os.getenv("ANDROID_HOME")
 
-#Connecting for a device
+# Connecting for a device
+
+
 def connect():
-    client = AdbClient(host="127.0.0.1", port=5037) # Default is "127.0.0.1" and 5037
+    # Default is "127.0.0.1" and 5037
+    client = AdbClient(host="127.0.0.1", port=5037)
     devices = client.devices()
     if len(devices) == 0:
         print('No devices')
@@ -26,118 +29,124 @@ def connect():
 
 def search_package_in_avd(device):
     command = device.shell('pm list packages -3 '+'|cut -f 2 -d '+':')
-    packages=re.split(':|\r|\n',command)
+    packages = re.split(':|\r|\n', command)
     for package in packages:
-     print(package+"\n")
+        print(package+"\n")
     if not packages:
         return ""
     else:
         return packages
-        
+
+
 def read_files():
-    input_list=[]
-    file = open("results3.csv")  
+    input_list = []
+    file = open("results3.csv")
     reader = csv.reader(file)
-    #gets all apk file names
+    # gets all apk file names
     files = os.listdir(path)
-    
+
     for row in reader:
-       if len(row)>0:
-        input_list.append(row)
-    file.close()    
+        if len(row) > 0:
+            input_list.append(row)
+    file.close()
     return files
+
 
 def install_package(package):
     try:
-     device.install(path+'/'+package)
-     print(package+" installed ")
-     return True
+        device.install(path+'/'+package)
+        print(package+" installed ")
+        return True
     except Exception as e:
-     print("Error"+str(e))
-     try:
-      os.remove(path+"/"+package)
-     except Exception as e:
-      print("Error"+str(e))     
-     return False
-    
+        print("Error"+str(e))
+        try:
+            os.remove(path+"/"+package)
+        except Exception as e:
+            print("Error"+str(e))
+        return False
+
+
 def uninstall_package(device):
-     packages=search_package_in_avd(device)
-     for package in packages:
+    packages = search_package_in_avd(device)
+    for package in packages:
         device.uninstall(package)
         print(package+" uninstalled")
 
+
 def file_open():
-    header = ["packageName","package","header","method","url","useragent"]
+    header = ["packageName", "package", "header", "method", "url", "useragent"]
     file = open('eval1.csv', 'a')
     writer = csv.writer(file)
-   
-    writer.writerow(header)    
-    return file,writer
+
+    writer.writerow(header)
+    return file, writer
+
 
 def file_open1():
     file = open('eval1.csv', 'a')
     writer = csv.writer(file)
-    return file,writer    
-    
-def add_rows(writer,data):
+    return file, writer
+
+
+def add_rows(writer, data):
     writer.writerow(data)
 
-      
-def frida_instument():
-  try:
-    device_frida = frida.get_usb_device()
-    f_package=search_package_in_avd(device)[0];
-    pid = device_frida.spawn([f_package])
-    session = device_frida.attach(pid)
-    script = session.create_script(open("ev.js").read())
-    script.on("message", on_message)
-    script.load()
-    device_frida.resume(pid)
-    #running monkeyscript
-    os.system(android_home+' monkeyscript.py')
-    time.sleep(10)
-  except Exception as e:
-    print("ERROR")
-   
 
-    
+def frida_instrument():
+    try:
+        device_frida = frida.get_usb_device()
+        f_package = search_package_in_avd(device)[0]
+        pid = device_frida.spawn([f_package])
+        session = device_frida.attach(pid)
+        script = session.create_script(open("ev.js").read())
+        script.on("message", on_message)
+        script.load()
+        device_frida.resume(pid)
+        # running monkeyscript
+        os.system(android_home+' monkeyscript.py')
+        time.sleep(10)
+    except Exception as e:
+        print("ERROR")
+
+
 def on_message(message, data):
     print("frida")
-
     if 'payload' in message:
-        payload = message['payload']  
+        payload = message['payload']
         if 'Url' in payload:
             print("inFrida")
-            data=[payload['packageName'],package,payload['method'],payload['Header'],payload['Url'],payload['userAgent']]
-            file,writer=file_open1() 
-            add_rows(writer,data)
+            data = [payload['packageName'], package, payload['method'],
+                    payload['Header'], payload['Url'], payload['userAgent']]
+            file, writer = file_open1()
+            add_rows(writer, data)
             file.close()
-device=None
-writer=None
-file=None
-package=None
-f_package=None
+
+
+device = None
+writer = None
+file = None
+package = None
+f_package = None
 
 if __name__ == '__main__':
+    
+    if android_home is None:
+        print(f"ANDROID_HOME is not set")
+        exit(9)
 
-    file,writer=file_open() 
-    device, client = connect()     
+    file, writer = file_open()
+    device, client = connect()
     uninstall_package(device)
-    # open up camera app
-    apks=read_files() 
+    apks = read_files()
     for apk in apks:
-      if len(apk)>0:
-       x=install_package(apk)
-       package=apk
-       if(x):
-        frida_instument()
-        uninstall_package(device)
-        try:
-         os.replace(path+"/"+apk,path1+"/"+apk)       
-        except Exception as e:
-             print("ERROR")
+        if len(apk) > 0:
+            x = install_package(apk)
+            package = apk
+            if (x):
+                frida_instrument()
+                uninstall_package(device)
+                try:
+                    os.replace(path+"/"+apk, path1+"/"+apk)
+                except Exception as e:
+                    print("ERROR")
     file.close()
-
-
-
-        
