@@ -19,7 +19,9 @@ by their similarity, as well as by the number of unique packets from which we ob
 
 $ py DatasetAnalyzer.py -->
 
-# Charlie --- Android WebView Instrumentation
+# Charlie --- Android WebView Fingerprints
+
+Charlie is an tool for collecting fingerprints in Android Webview. It relies on an dynamic instrumentation based on Frida. It currently supports monkey testing to increase coverage.
 
 ### Tool
 You can find `charlie` in the `charlie` directory.
@@ -30,5 +32,11 @@ Charlie requires the following dependencies:
 - [Frida](https://frida.re) Dynamic Instrumentation 
 - Python 3
 
+Additionally, you need to have the Android SDK and 
+
 ### Instructions
 Charlie is a python script and can be run via `python3 charlie.py` within the `charlie` directory. 
+
+### Developers
+
+Ignored for double blind submission
