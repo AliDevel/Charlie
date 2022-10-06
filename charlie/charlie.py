@@ -1,4 +1,5 @@
 import subprocess
+import sys
 import time
 import argparse
 
@@ -180,18 +181,21 @@ def main() -> None:
     # device, client = InstrumentEnv.get_environment()
     # uninstall_package(device)
     # apks = read_files()
-    parser = argparse.ArgumentParser('description: charlie --- Android WebView Instrumentation')
+    parser = argparse.ArgumentParser('charlie.py')
     parser.add_argument('-d', dest='dir', type=str, help='analyze APKs in the directory')
     parser.add_argument('-a', dest='apk', type=str, help='analyze apk')
     args = parser.parse_args()
 
     if args.dir:
         analyze_apks(directory=args.dir)
-
-    if args.apk:
+        logger.info("Analysis completed")
+    elif args.apk:
         analyze_apk(apk=args.apk)
+        logger.info("Analysis completed")
+    else:
+        print("You must specify either directory or apk path")
+        parser.print_help(sys.stderr)
 
-    logger.info("Analysis completed")
 
     # if args.dir is None
     #
