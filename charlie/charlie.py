@@ -26,7 +26,7 @@ path1 = 'F:/automatization/app3'
 
 
 logger = logging.getLogger('CharlieInstrument')
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format='[Charlie::%(levelname)-6s]  %(message)s')
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format='[%(levelname)-6s]  %(message)s')
 
 FRIDA_LOG_FILE = 'frida.log'
 
@@ -90,9 +90,8 @@ class InstrumentEnv:
 
     def set_up_monkey_runner(self):
         android_bin = os.path.join(os.getenv('ANDROID_SDK_ROOT'), 'tools', 'bin')
-
-        if system() == 'JAVA':
-            logger.error("Unsupported system java. Existing.")
+        if system() == 'Java':
+            logger.error("Unsupported system Java. Exiting.")
             exit(10)
         self.monkey_runner = os.path.join(android_bin, 'monkeyrunner' if is_unix() else 'monkeyrunner.bat')
 
@@ -102,7 +101,7 @@ class InstrumentEnv:
         logger.info(f'Connected to ADB Client {self.hostname}:{self.port}')
         devices = self.client.devices()
         if len(devices) == 0:
-            logger.error("No devices found to connect. Quiting.")
+            logger.error("No devices found to connect. Exiting.")
             quit(9)
         self.device = devices[0]
         print(f'Connected to {self.device}')
@@ -226,8 +225,9 @@ def main() -> None:
 
 if __name__ == '__main__':
 
-    if os.getenv('ANDROID_SDK_ROOT') is None:
+    android_sdk_root = os.getenv('ANDROID_SDK_ROOT')
+    if android_sdk_root is None:
         print(f"ANDROID_SDK_ROOT is not set")
         exit(9)
-
+    logger.info(f'Using Android SDK root={android_sdk_root}')
     main()
