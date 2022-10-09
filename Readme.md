@@ -33,10 +33,27 @@ Charlie requires the following dependencies:
 - Android SDK - You need to have the Android SDK and initialize the `ANDROID_SDK_ROOT` environment variable. Install it with [Android Studio](https://developer.android.com/studio) or install it from [command line tools](https://developer.android.com/studio/command-line).
 
 ### Instructions
-Charlie is a python script and can be run via `python3 charlie.py` within the `charlie` directory. 
+Charlie is a python script and can be run via `python3 charlie.py` within the `charlie` directory. As of now, it is necessary to run Charlie on an emulated device. PLEASE DON'T RUN CHARLIE ON YOUR PERSONAL DEVICE, YOU MIGHT LOOSE INSTALLED APPS.
 
-<b> Create emulator and connect </b>
-<b> Run Charlie </b>
+First, you need to setup Frida server. Follow these instructions (https://frida.re/docs/android/) to setup Frida. 
+
+Next, you can run charlie via the python script `python3 charlie.py`. Please ensure that you run `charlie` from `charlie` directory. You need to specify the apk file `[-a]` or the directory containing a bunch of apk files `[-d]`. By default, it uses <tt>127.0.0.1</tt> and <tt>5037</tt> as adb client and port. 
+
+Charlie usage looks like
+
+```shell
+usage: charlie.py [-h] [-d DIR] [-a APK_FILE] [-l ADB_HOST] [-p ADB_PORT]
+
+options:
+  -h, --help   show this help message and exit
+  -d DIR       analyze all apk files in the directory
+  -a APK_FILE  analyze apk
+  -l ADB_HOST  adb hostname (default=127.0.0.1)
+  -p ADB_PORT  adb port (default=5037)
+ ```
+ 
 ### Developers
 
-Ignored for double blind submission
+Hidden for double blind review
+
+
