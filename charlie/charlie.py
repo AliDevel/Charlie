@@ -43,6 +43,11 @@ def log_instrumentation(message, data):
 
 class InstrumentEnv:
     def __init__(self, hostname: str, port: str):
+        """
+        Initializes the Instrumentation environment
+        :param hostname: ADB Hostname (default: 127.0.0.1)
+        :param port: ADB Port (default: 5037)
+        """
         self.client = None
         self.device = None
         self.monkey_runner = None
@@ -54,6 +59,11 @@ class InstrumentEnv:
             self.connect()
 
     def install_package(self, apk: str) -> None:
+        """
+        Installs the apk file in the device (or emulator)
+        :param apk:
+        :return:
+        """
         try:
             self.device.install(apk)
             logger.info(f'Installed package {apk}')
@@ -81,17 +91,22 @@ class InstrumentEnv:
         print(f'Connected to {self.device}')
 
     def search_package_in_avd(self):
-        command = self.device.shell('pm list packages -3 ' + '|cut -f 2 -d ' + ':')
+        command = self.device.shell('pm list packages -3 ' + '|cut -f 2 -d :')
         # packages = re.split(os.linesep, command)
-        packages = re.split(':|\r|\n', command)
+        packages = re.split('[:\r\n]', command)
         for package in packages:
             print(package + "\n")
         if not packages:
+            logger.error("Could not find any packages in the device")
             return ""
         else:
             return packages
 
     def clean(self):
+        """
+        Cleans the device before installation
+        :return:
+        """
         packages = self.search_package_in_avd()
         for package in packages:
             self.device.uninstall(package)
@@ -109,8 +124,7 @@ class InstrumentEnv:
             script.on("message", log_instrumentation)
             script.load()
             device_frida.resume(pid)
-            # running monkeyscript
-
+            # Running monkey script
             os.system(self.monkey_runner + ' monkeyscript.py')
             subprocess.run([self.monkey_runner, 'monkeyscript.py'])
             time.sleep(10)
