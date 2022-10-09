@@ -147,18 +147,21 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.dir is not None:
+        logger.info(f'Using Android SDK root={android_sdk_root}')
         for apk_file in os.listdir(args.dir):
             if apk_file.endswith(".apk"):
                 instrument = InstrumentEnv(hostname=args.adb_host, port=args.adb_port)
                 instrument.run(apk_file=os.path.abspath(os.path.join(args.dir, apk_file)))
         logger.info("Analysis completed")
     elif args.apk_file:
+        logger.info(f'Using Android SDK root={android_sdk_root}')
         instrument = InstrumentEnv(hostname=args.adb_host, port=args.adb_port)
         instrument.run(apk_file=os.path.abspath(args.apk_file))
         logger.info("Analysis completed")
     else:
-        print("You must specify either directory [-d] or apk [-a] path")
         parser.print_help(sys.stderr)
+        print("\nYou must specify either directory [-d] or apk [-a] path")
+
 
 
 if __name__ == '__main__':
@@ -166,5 +169,4 @@ if __name__ == '__main__':
     if android_sdk_root is None:
         print(f"ANDROID_SDK_ROOT is not set")
         exit(9)
-    logger.info(f'Using Android SDK root={android_sdk_root}')
     main()
