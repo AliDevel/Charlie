@@ -31,9 +31,6 @@ def log_instrumentation(message, data):
     payload = message['payload']
     if payload is not None:
         if 'Url' in payload:
-            # @Alimerdan: Do we need the "package" here?
-            # Yes we need packageName, However I think we need to remove custom header
-            # as we don't have nothing.
             data = [payload['packageName'], payload['method'],
                     payload['Header'], payload['Url'], payload['userAgent']]
             with open(FRIDA_LOG_FILE, 'a') as f:
