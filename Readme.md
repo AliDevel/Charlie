@@ -33,7 +33,12 @@ Charlie requires the following dependencies:
 - Android SDK - You need to have the Android SDK and initialize the `ANDROID_SDK_ROOT` environment variable. Install it with [Android Studio](https://developer.android.com/studio) or install it from [command line tools](https://developer.android.com/studio/command-line).
 
 ### Instructions
-Charlie is a python script and can be run via `python3 charlie.py` within the `charlie` directory. As of now, it is necessary to run Charlie on an emulated device. PLEASE DON'T RUN CHARLIE ON A PERSONAL DEVICE, YOU MIGHT LOOSE INSTALLED APPS.
+Charlie is a python script and can be run via python within the `charlie` directory. As of now, it is necessary to run Charlie on an emulated device. PLEASE DON'T RUN CHARLIE ON A PERSONAL DEVICE, YOU MIGHT LOOSE INSTALLED APPS.
+
+```shell
+$ python3 charlie.py [-a | -d] <path to apk or directory containing apks>
+``` 
+
 
 First, you need to setup Frida server. Follow these instructions (https://frida.re/docs/android/) to setup Frida. 
 
