@@ -19,7 +19,7 @@ by their similarity, as well as by the number of unique packets from which we ob
 
 $ py DatasetAnalyzer.py -->
 
-# Charlie --- Android WebView Fingerprints
+# Charlie: Android WebView Fingerprints
 
 Charlie is an tool for collecting fingerprints in Android Webview. It relies on an dynamic instrumentation based on Frida. It currently supports monkey testing to increase coverage.
 
