@@ -62,11 +62,13 @@ options:
   -l ADB_HOST  adb hostname (default=127.0.0.1)
   -p ADB_PORT  adb port (default=5037)
  ```
- 
+
+<!--
 ### Developers
 
 - Alimerdan Rahimov, Developer (alimerdan.rahimov@gmail.com)
 - Jyoti Prakash & Abhishek Tiwari, Mentors (jpksh90@gmail.com, mig40000@gmail.com)
+-->
 
 
 
