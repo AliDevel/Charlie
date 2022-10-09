@@ -162,12 +162,9 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    # Couldn't get environment
     android_sdk_root = os.getenv('ANDROID_SDK_ROOT')
     if android_sdk_root is None:
         print(f"ANDROID_SDK_ROOT is not set")
-        # temporary set my sdk location
-        # android_sdk_root=r'C:\Users\alime\AppData\Local\Android\Sdk\tools\bin\monkeyrunner.bat'
         exit(9)
     logger.info(f'Using Android SDK root={android_sdk_root}')
     main()
