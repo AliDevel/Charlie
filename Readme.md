@@ -35,16 +35,22 @@ Charlie requires the following dependencies:
 ### Instructions
 Charlie is a python script and can be run via python within the `charlie` directory. As of now, it is necessary to run Charlie on an emulated device. PLEASE DON'T RUN CHARLIE ON A PERSONAL DEVICE, YOU MIGHT LOOSE INSTALLED APPS.
 
-```shell
-$ python3 charlie.py [-a | -d] <path to apk or directory containing apks>
-``` 
-
 
 First, you need to setup Frida server. Follow these instructions (https://frida.re/docs/android/) to setup Frida. 
 
 Next, you can run charlie via the python script `python3 charlie.py`. Please ensure that you run `charlie` from `charlie` directory. You need to specify the apk file `[-a]` or the directory containing a bunch of apk files `[-d]`. By default, it uses <tt>127.0.0.1</tt> and <tt>5037</tt> as adb client and port. 
 
-Charlie usage looks like
+```shell
+$ python3 charlie.py -a <path to apk>
+``` 
+
+Alternatively, you can also run it for all apps within a directory.
+
+```shell
+$ python charlie.py -d <path/to/dir>
+```
+
+<b> Charlie usage </b>
 
 ```shell
 usage: charlie.py [-h] [-d DIR] [-a APK_FILE] [-l ADB_HOST] [-p ADB_PORT]
