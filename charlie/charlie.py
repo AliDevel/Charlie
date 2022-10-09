@@ -28,21 +28,11 @@ path1 = 'F:/automatization/app3'
 logger = logging.getLogger('CharlieInstrument')
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format='[%(levelname)-6s]  %(message)s')
 
-FRIDA_LOG_FILE = 'frida.log'
+FRIDA_LOG_FILE = 'frida.csv'
 
 
 def is_unix():
     return system() in ['Linux', 'Darwin']
-
-
-# def file_open1():
-#     file = open('eval1.csv', 'a')
-#     writer = csv.writer(file)
-#     return file, writer
-#
-#
-# def add_rows(writer, data):
-#     writer.writerow(data)
 
 
 def log_instrumentation(message, data):
@@ -50,18 +40,17 @@ def log_instrumentation(message, data):
     payload = message['payload']
     if payload is not None:
         if 'Url' in payload:
-            # print("inFrida")
-            # data = [payload['packageName'], package, payload['method'],
-            #         payload['Header'], payload['Url'], payload['userAgent']]
+       
 
             # @Alimerdan: Do we need the "package" here?
+            # Yes we need packageName, However I think we need to remove custom header
+            # as we don't have nothing.
             data = [payload['packageName'], payload['method'],
                     payload['Header'], payload['Url'], payload['userAgent']]
-            with open(FRIDA_LOG_FILE) as f:
+            with open(FRIDA_LOG_FILE, 'a') as f:
                 writer = csv.writer(f)
                 writer.writerow(data)
-            # file, writer = file_open1()
-            # file.close()
+          
 
 
 class InstrumentEnv:
@@ -72,29 +61,30 @@ class InstrumentEnv:
         self.monkey_runner = None
         self.hostname = hostname
         self.port = port
-        self.connect()
+        self.android_sdk_root=os.getenv('ANDROID_SDK_ROOT')
+        #We need once establish a connection 
+        if self.device is None:
+            self.connect()
 
     def install_package(self):
         try:
             self.device.install(self.apk)
             logger.info(f'Installed package {self.apk}')
-            # return True
+          
         except Exception as e:
             logger.error(f"Failed to install {self.apk}")
-            # print("Error" + str(e))
-            # try:
-            #     os.remove(path + "/" + self.apk)
-            # except Exception as e:
-            #     print("Error" + str(e))
-            # return False
+         
 
     def set_up_monkey_runner(self):
-        android_bin = os.path.join(os.getenv('ANDROID_SDK_ROOT'), 'tools', 'bin')
+        #android_bin = os.path.join(os.getenv('ANDROID_SDK_ROOT'), 'tools', 'bin')
+        android_bin = os.path.join(self.android_sdk_root, 'tools', 'bin')
+
+        logger.info(android_bin)
         if system() == 'Java':
             logger.error("Unsupported system Java. Exiting.")
             exit(10)
         self.monkey_runner = os.path.join(android_bin, 'monkeyrunner' if is_unix() else 'monkeyrunner.bat')
-
+        logger.info(self.monkey_runner)
     def connect(self) -> None:
         # Default is "127.0.0.1" and 5037
         self.client = AdbClient(host=self.hostname, port=self.port)
@@ -105,11 +95,12 @@ class InstrumentEnv:
             quit(9)
         self.device = devices[0]
         print(f'Connected to {self.device}')
-        # return device, client
+     
 
     def search_package_in_avd(self):
         command = self.device.shell('pm list packages -3 ' + '|cut -f 2 -d ' + ':')
-        packages = re.split(os.linesep, command)
+        #packages = re.split(os.linesep, command)
+        packages=re.split(':|\r|\n',command)
         for package in packages:
             print(package + "\n")
         if not packages:
@@ -136,7 +127,8 @@ class InstrumentEnv:
             script.load()
             device_frida.resume(pid)
             # running monkeyscript
-            # os.system(self.monkey_runner + ' monkeyscript.py')
+           
+            os.system(self.monkey_runner + ' monkeyscript.py')
             subprocess.run([self.monkey_runner, 'monkeyscript.py'])
             time.sleep(10)
         except Exception as e:
@@ -147,44 +139,11 @@ class InstrumentEnv:
         self.install_package()
         self.run_frida()
         self.clean()
+       # self.clean()
 
-
-# def read_files():
-#     files = os.listdir(path)
-#     return files
-#
-#
-# def file_open():
-#     header = ["packageName", "package", "header", "method", "url", "useragent"]
-#     file = open('eval1.csv', 'a')
-#     writer = csv.writer(file)
-#
-#     writer.writerow(header)
-#     return file, writer
-
-
-# device = None
-# writer = None
-# file = None
-# package = None
-# f_package = None
-
-# def analyze_apks(args) -> None:
-#     for apk in os.listdir(directory):
-#         analyze_apk(apk)
-#
-#
-# def analyze_apk(args) -> None:
-#     if apk.endswith(".apk"):
-#         instrument = InstrumentEnv(apk)
-#         instrument.run()
 
 
 def main() -> None:
-    # file, writer = file_open()
-    # device, client = InstrumentEnv.get_environment()
-    # uninstall_package(device)
-    # apks = read_files()
     parser = argparse.ArgumentParser('charlie.py')
     parser.add_argument('-d', dest='dir', type=str, help='analyze all apk files in the directory')
     parser.add_argument('-a', dest='apk_file', type=str, help='analyze apk')
@@ -194,7 +153,7 @@ def main() -> None:
 
     if args.dir is not None:
         for apk_file in os.listdir(args.dir):
-            instrument = InstrumentEnv(apk=os.path.abspath(apk_file), hostname=args.adb_host, port=args.adb_port)
+            instrument = InstrumentEnv(apk=args.dir+'/'+apk_file, hostname=args.adb_host, port=args.adb_port)
             instrument.run()
         logger.info("Analysis completed")
     elif args.apk_file:
@@ -206,28 +165,15 @@ def main() -> None:
         parser.print_help(sys.stderr)
 
 
-    # if args.dir is None
-    #
-    # for apk in apks:
-    #     if len(apk) > 0:
-    #         x = install_package(apk)
-    #         package = apk
-    #         if (x):
-    #             frida_instrument()
-    #             uninstall_package(device)
-    #             try:
-    #                 os.replace(path + "/" + apk, path1 + "/" + apk)
-    #             except OSError as e:
-    #                 logger.error(f"{e.errno}::{e.strerror}")
-    #
-    # file.close()
 
 
 if __name__ == '__main__':
-
-    android_sdk_root = os.getenv('ANDROID_SDK_ROOT')
-    if android_sdk_root is None:
+   #Couldn't get environment 
+   android_sdk_root = os.getenv('ANDROID_SDK_ROOT')
+   if android_sdk_root is None:
         print(f"ANDROID_SDK_ROOT is not set")
+        #temporary set my sdk location
+        #android_sdk_root=r'C:\Users\alime\AppData\Local\Android\Sdk\tools\bin\monkeyrunner.bat'
         exit(9)
-    logger.info(f'Using Android SDK root={android_sdk_root}')
-    main()
+   logger.info(f'Using Android SDK root={android_sdk_root}')
+   main()

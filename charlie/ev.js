@@ -30,13 +30,14 @@ if (Java.available) {
                 var valuestr = url.get(keystr).toString();
 				var s=keystr+valuestr;
                 console.log("Header" + keystr + ":" + valuestr)
+                send({
+                    method: "loadUrlHeader",
+                    Url: url,
+                    Header:s,
+                    userAgent: this.getSettings().getUserAgentString()
+                });
             }
-            send({
-                method: "loadUrlHeader",
-                Url: url,
-                Header:s,
-                userAgent: this.getSettings().getUserAgentString()
-            });
+           
         }
 
         WebView.postUrl.overload('java.lang.String', '[B').implementation = function(url, data) {
