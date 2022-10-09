@@ -24,9 +24,9 @@ device = MonkeyRunner.waitForConnection()
 #device.press('KEYCODE_MENU', MonkeyDevice.DOWN_AND_UP)
 screenW = float(device.getProperty("display.width"))
 screenH = float(device.getProperty("display.height"))
-print screenW 
-print screenH
-print "start monkey test"
+print(screenW)
+print(screenH)
+print("start monkey test")
 
 for i in range(1, 50):
      a=random.randint(10,screenW)
@@ -34,5 +34,5 @@ for i in range(1, 50):
      print a,b
      device.touch(a, b, 'DOWN_AND_UP')
      MonkeyRunner.sleep(1)
-   
-print "end monkey test"
+
+print("end monkey test")
