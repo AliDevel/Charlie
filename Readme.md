@@ -53,14 +53,14 @@ $ python charlie.py -d <path/to/dir>
 <b> Charlie usage </b>
 
 ```shell
-usage: charlie.py [-h] [-d DIR] [-a APK_FILE] [-l ADB_HOST] [-p ADB_PORT]
+usage: charlie.py [-h] [-l ADB_HOST] [-p ADB_PORT] (-d DIRECTORY | -a APK_FILE)
 
 options:
-  -h, --help   show this help message and exit
-  -d DIR       analyze all apk files in the directory
-  -a APK_FILE  analyze apk
-  -l ADB_HOST  adb hostname (default=127.0.0.1)
-  -p ADB_PORT  adb port (default=5037)
+  -h, --help    show this help message and exit
+  -l ADB_HOST   adb hostname (default=127.0.0.1)
+  -p ADB_PORT   adb port (default=5037)
+  -d DIRECTORY  analyze all apk files in the directory
+  -a APK_FILE   analyze apk
  ```
 
 <!--
