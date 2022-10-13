@@ -167,7 +167,6 @@ def main() -> None:
         logger.info("Analysis completed")
     else:
         parser.print_help(sys.stderr)
-        print("\nYou must specify either directory [-d] or apk [-a] path")
         exit(9)
 
 
