@@ -146,19 +146,19 @@ def main() -> None:
     parser.add_argument('-p', dest='adb_port', type=str,
                         help='adb port (default=5037)', default=5037)
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-d', dest='dir', type=str,
+    group.add_argument('-d', dest='directory', type=str,
                        help='analyze all apk files in the directory')
     group.add_argument('-a', dest='apk_file', type=str, help='analyze apk')
     args = parser.parse_args()
 
-    if args.dir is not None:
+    if args.directory is not None:
         logger.info(f'Using Android SDK root={android_sdk_root}')
-        for apk_file in os.listdir(args.dir):
+        for apk_file in os.listdir(args.directory):
             if apk_file.endswith(".apk"):
                 instrument = InstrumentEnv(
                     hostname=args.adb_host, port=args.adb_port)
                 instrument.run(apk_file=os.path.abspath(
-                    os.path.join(args.dir, apk_file)))
+                    os.path.join(args.directory, apk_file)))
         logger.info("Analysis completed")
     elif args.apk_file:
         logger.info(f'Using Android SDK root={android_sdk_root}')
