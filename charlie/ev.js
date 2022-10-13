@@ -81,10 +81,5 @@ if (Java.available) {
             this.onLoadResource(p0, url);
 
         }
-
-
-
-
     });
-
 }
