@@ -47,9 +47,6 @@ class InstrumentEnv:
         self.port = port
         self.android_sdk_root = os.getenv('ANDROID_SDK_ROOT')
         self.__connect__()
-        # # We need once establish a connection
-        # if self.device is None:
-        #     self.connect()
 
     def __install_package__(self, apk: str) -> None:
         """
