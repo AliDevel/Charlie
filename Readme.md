@@ -33,13 +33,24 @@ Charlie requires the following dependencies:
 - Android SDK - You need to have the Android SDK and initialize the `ANDROID_SDK_ROOT` environment variable. Install it with [Android Studio](https://developer.android.com/studio) or install it from [command line tools](https://developer.android.com/studio/command-line).
 
 ### Instructions
-Charlie is a python script and can be run via `python3 charlie.py` within the `charlie` directory. As of now, it is necessary to run Charlie on an emulated device. PLEASE DON'T RUN CHARLIE ON YOUR PERSONAL DEVICE, YOU MIGHT LOOSE INSTALLED APPS.
+Charlie is a python script and can be run via python within the `charlie` directory. As of now, it is necessary to run Charlie on an emulated device. PLEASE DON'T RUN CHARLIE ON A PERSONAL DEVICE, YOU MIGHT LOOSE INSTALLED APPS.
+
 
 First, you need to setup Frida server. Follow these instructions (https://frida.re/docs/android/) to setup Frida. 
 
 Next, you can run charlie via the python script `python3 charlie.py`. Please ensure that you run `charlie` from `charlie` directory. You need to specify the apk file `[-a]` or the directory containing a bunch of apk files `[-d]`. By default, it uses <tt>127.0.0.1</tt> and <tt>5037</tt> as adb client and port. 
 
-Charlie usage looks like
+```shell
+$ python3 charlie.py -a <path to apk>
+``` 
+
+Alternatively, you can also run it for all apps within a directory.
+
+```shell
+$ python charlie.py -d <path/to/dir>
+```
+
+<b> Charlie usage </b>
 
 ```shell
 usage: charlie.py [-h] [-d DIR] [-a APK_FILE] [-l ADB_HOST] [-p ADB_PORT]
@@ -51,9 +62,13 @@ options:
   -l ADB_HOST  adb hostname (default=127.0.0.1)
   -p ADB_PORT  adb port (default=5037)
  ```
- 
+
+<!--
 ### Developers
 
-Hidden for double blind review
+- Alimerdan Rahimov, Developer (alimerdan.rahimov@gmail.com)
+- Jyoti Prakash & Abhishek Tiwari, Mentors (jpksh90@gmail.com, mig40000@gmail.com)
+-->
+
 
 
