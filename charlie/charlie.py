@@ -1,22 +1,14 @@
-import argparse
-import pathlib
+import csv
+import logging
+import os
+import re
 import subprocess
 import sys
 import time
 from argparse import ArgumentParser, RawTextHelpFormatter
-import configparser
-from tokenize import group
-
-from ppadb.client import Client as AdbClient
-from typing import AnyStr, List
-
-import re
-import os
-import csv
-import frida
-import logging
-from pathlib import Path
 from platform import system
+import frida
+from ppadb.client import Client as AdbClient
 
 logger = logging.getLogger('Charlie')
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG,
@@ -54,11 +46,12 @@ class InstrumentEnv:
         self.hostname = hostname
         self.port = port
         self.android_sdk_root = os.getenv('ANDROID_SDK_ROOT')
-        # We need once establish a connection
-        if self.device is None:
-            self.connect()
+        self.__connect__()
+        # # We need once establish a connection
+        # if self.device is None:
+        #     self.connect()
 
-    def install_package(self, apk: str) -> None:
+    def __install_package__(self, apk: str) -> None:
         """
         Installs the apk file in the device (or emulator)
         :param apk:
@@ -70,7 +63,7 @@ class InstrumentEnv:
         except Exception as e:
             logger.error(f"Failed to install {apk}, error={e}")
 
-    def set_up_monkey_runner(self):
+    def __set_up_monkey_runner__(self):
         android_bin = os.path.join(self.android_sdk_root, 'tools', 'bin')
         logger.debug(android_bin)
         if system() == 'Java':
@@ -80,7 +73,7 @@ class InstrumentEnv:
             android_bin, 'monkeyrunner' if is_unix() else 'monkeyrunner.bat')
         logger.info(self.monkey_runner)
 
-    def connect(self) -> None:
+    def __connect__(self) -> None:
         # Default is "127.0.0.1" and 5037
         self.client = AdbClient(host=self.hostname, port=self.port)
         logger.info(f'Connected to ADB Client {self.hostname}:{self.port}')
@@ -91,7 +84,7 @@ class InstrumentEnv:
         self.device = devices[0]
         print(f'Connected to {self.device}')
 
-    def search_package_in_avd(self):
+    def __search_package_in_avd__(self):
         command = self.device.shell('pm list packages -3 | cut -f 2 -d :')
         # packages = re.split(os.linesep, command)
         packages = re.split('[:\r\n]', command)
@@ -103,22 +96,22 @@ class InstrumentEnv:
         else:
             return packages
 
-    def clean(self):
+    def __clean__(self):
         """
         Cleans the device before installation
         :return:
         """
-        packages = self.search_package_in_avd()
+        packages = self.__search_package_in_avd__()
         for package in packages:
             self.device.uninstall(package)
             print(package + " uninstalled")
 
-    def run_frida(self, apk):
-        self.set_up_monkey_runner()
+    def __run_frida__(self, apk):
+        self.__set_up_monkey_runner__()
         logger.info(f"Running {apk} with Frida")
         try:
             device_frida = frida.get_usb_device()
-            f_package = self.search_package_in_avd()[0]
+            f_package = self.__search_package_in_avd__()[0]
             pid = device_frida.spawn([f_package])
             session = device_frida.attach(pid)
             script = session.create_script(open("ev.js").read())
@@ -133,10 +126,10 @@ class InstrumentEnv:
             logger.error(e)
 
     def run(self, apk_file: str) -> None:
-        self.clean()
-        self.install_package(apk=apk_file)
-        self.run_frida(apk=apk_file)
-        self.clean()
+        self.__clean__()
+        self.__install_package__(apk=apk_file)
+        self.__run_frida__(apk=apk_file)
+        self.__clean__()
 
 
 def main() -> None:
@@ -155,10 +148,8 @@ def main() -> None:
         logger.info(f'Using Android SDK root={android_sdk_root}')
         for apk_file in os.listdir(args.directory):
             if apk_file.endswith(".apk"):
-                instrument = InstrumentEnv(
-                    hostname=args.adb_host, port=args.adb_port)
-                instrument.run(apk_file=os.path.abspath(
-                    os.path.join(args.directory, apk_file)))
+                instrument = InstrumentEnv(hostname=args.adb_host, port=args.adb_port)
+                instrument.run(apk_file=os.path.abspath(os.path.join(args.directory, apk_file)))
         logger.info("Analysis completed")
     elif args.apk_file:
         logger.info(f'Using Android SDK root={android_sdk_root}')
