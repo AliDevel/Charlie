@@ -1,9 +1,11 @@
+import argparse
 import pathlib
 import subprocess
 import sys
 import time
-import argparse
+from argparse import ArgumentParser, RawTextHelpFormatter
 import configparser
+from tokenize import group
 
 from ppadb.client import Client as AdbClient
 from typing import AnyStr, List
@@ -17,7 +19,8 @@ from pathlib import Path
 from platform import system
 
 logger = logging.getLogger('Charlie')
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format='[%(levelname)-6s]  %(message)s')
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG,
+                    format='[%(levelname)-6s]  %(message)s')
 
 FRIDA_LOG_FILE = 'frida.csv'
 
@@ -73,7 +76,8 @@ class InstrumentEnv:
         if system() == 'Java':
             logger.error("Unsupported system Java. Exiting.")
             exit(10)
-        self.monkey_runner = os.path.join(android_bin, 'monkeyrunner' if is_unix() else 'monkeyrunner.bat')
+        self.monkey_runner = os.path.join(
+            android_bin, 'monkeyrunner' if is_unix() else 'monkeyrunner.bat')
         logger.info(self.monkey_runner)
 
     def connect(self) -> None:
@@ -88,7 +92,7 @@ class InstrumentEnv:
         print(f'Connected to {self.device}')
 
     def search_package_in_avd(self):
-        command = self.device.shell('pm list packages -3 ' + '|cut -f 2 -d :')
+        command = self.device.shell('pm list packages -3 | cut -f 2 -d :')
         # packages = re.split(os.linesep, command)
         packages = re.split('[:\r\n]', command)
         for package in packages:
@@ -136,19 +140,25 @@ class InstrumentEnv:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser('charlie.py')
-    parser.add_argument('-d', dest='dir', type=str, help='analyze all apk files in the directory')
-    parser.add_argument('-a', dest='apk_file', type=str, help='analyze apk')
-    parser.add_argument('-l', dest='adb_host', type=str, help='adb hostname (default=127.0.0.1)', default='127.0.0.1')
-    parser.add_argument('-p', dest='adb_port', type=str, help='adb port (default=5037)', default=5037)
+    parser = ArgumentParser('charlie.py', formatter_class=RawTextHelpFormatter)
+    parser.add_argument('-l', dest='adb_host', type=str,
+                        help='adb hostname (default=127.0.0.1)', default='127.0.0.1')
+    parser.add_argument('-p', dest='adb_port', type=str,
+                        help='adb port (default=5037)', default=5037)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-d', dest='dir', type=str,
+                       help='analyze all apk files in the directory')
+    group.add_argument('-a', dest='apk_file', type=str, help='analyze apk')
     args = parser.parse_args()
 
     if args.dir is not None:
         logger.info(f'Using Android SDK root={android_sdk_root}')
         for apk_file in os.listdir(args.dir):
             if apk_file.endswith(".apk"):
-                instrument = InstrumentEnv(hostname=args.adb_host, port=args.adb_port)
-                instrument.run(apk_file=os.path.abspath(os.path.join(args.dir, apk_file)))
+                instrument = InstrumentEnv(
+                    hostname=args.adb_host, port=args.adb_port)
+                instrument.run(apk_file=os.path.abspath(
+                    os.path.join(args.dir, apk_file)))
         logger.info("Analysis completed")
     elif args.apk_file:
         logger.info(f'Using Android SDK root={android_sdk_root}')
@@ -158,7 +168,7 @@ def main() -> None:
     else:
         parser.print_help(sys.stderr)
         print("\nYou must specify either directory [-d] or apk [-a] path")
-
+        exit(9)
 
 
 if __name__ == '__main__':
