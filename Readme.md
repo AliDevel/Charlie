@@ -63,12 +63,11 @@ options:
   -a APK_FILE   analyze apk
  ```
 
-<!--
 ### Developers
 
 - Alimerdan Rahimov, Developer (alimerdan.rahimov@gmail.com)
 - Jyoti Prakash & Abhishek Tiwari, Mentors (jpksh90@gmail.com, mig40000@gmail.com)
--->
+
 
 
 
