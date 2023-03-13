@@ -65,8 +65,9 @@ options:
 
 ### Developers
 
-- Alimerdan Rahimov, Developer (alimerdan.rahimov@gmail.com)
-- Jyoti Prakash & Abhishek Tiwari, Mentors (jpksh90@gmail.com, mig40000@gmail.com)
+- Alimerdan Rahimov (alimerdan.rahimov@gmail.com)
+- Jyoti Prakash (jpksh90@gmail.com)
+- Abhishek Tiwari (mig40000@gmail.com)
 
 
 
